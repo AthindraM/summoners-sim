@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.16)
+project(summoners_sim CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+find_package(raylib REQUIRED)
+add_executable(sim main.cpp)
+target_link_libraries(sim raylib)
+if(APPLE)
+  target_link_libraries(sim "-framework IOKit" "-framework Cocoa" "-framework OpenGL")
+endif()
