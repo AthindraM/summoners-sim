@@ -34,7 +34,7 @@ static void add(ChampionDef def) {
 
 void load_champion_defs() {
   add({.name = "Darius",
-       .sprite_path = "assets/champions/Darius_0.jpg",
+       .sprite_path = "assets/champions/Darius.png",
        .radius = 30,
        .health = 650,
        .movement_speed = 340,
@@ -44,7 +44,7 @@ void load_champion_defs() {
        .ability_power = 0});
 
   add({.name = "Garen",
-       .sprite_path = "assets/champions/Garen_0.jpg",
+       .sprite_path = "assets/champions/Garen.png",
        .radius = 30,
        .health = 690,
        .movement_speed = 340,
