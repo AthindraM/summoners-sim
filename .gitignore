@@ -1,1 +1,4 @@
 /build
+.DS_Store
+assets/.DS_Store
+assets/champions/.DS_Store
