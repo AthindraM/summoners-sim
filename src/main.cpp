@@ -71,6 +71,8 @@ int main() {
                     a.vel = Vector2Rotate(a.vel, rand_range(-0.05f, 0.05f));  // about +-3 degrees
                     b.vel = Vector2Rotate(b.vel, rand_range(-0.05f, 0.05f));
                 }
+                a.regen(DT);
+                b.regen(DT);
                 tick_combat(a, b, colliding, DT);
 
                 a.enforce_speed();

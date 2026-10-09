@@ -12,6 +12,7 @@ void draw_stats_panel(const Champion& c, int x, int y, int width) {
     y += 34;
 
     const int line = 26;
+    DrawText(TextFormat("Health regen:   %d /s", c.health_regen), x, y, 20, RAYWHITE); y += line;
     DrawText(TextFormat("Attack damage:  %d", c.attack_damage), x, y, 20, RAYWHITE); y += line;
     DrawText(TextFormat("Ability power:  %d", c.ability_power), x, y, 20, RAYWHITE); y += line;
     DrawText(TextFormat("Armor:          %d", c.armor), x, y, 20, RAYWHITE);         y += line;
