@@ -2,9 +2,30 @@
 #include <algorithm>
 #include <cmath>
 
+int deal_damage(Champion& source, Champion& target, float raw, DamageType type) {
+    if (target.health <= 0) return 0;
+
+    float multiplier = 1.0f;
+    if (type == DamageType::Physical)   multiplier = 100.0f / (100.0f + target.armor);
+    else if (type == DamageType::Magic) multiplier = 100.0f / (100.0f + target.magic_resist);
+
+    int dmg = std::min((int)std::lround(raw * multiplier), target.health);
+    target.health -= dmg;
+
+    AbilityContext ctx{target, source};   // from the target's point of view
+    for (auto& ab : target.abilities) {
+        if (ab) ab->on_damage_taken(ctx, dmg);
+    }
+    return dmg;
+}
+
 void apply_hit(Champion& attacker, Champion& defender) {
-    float dmg = attacker.attack_damage * 100.0f / (100.0f + defender.armor);
-    defender.health = std::max(0, defender.health - (int)std::lround(dmg));
+    int dmg = deal_damage(attacker, defender, (float)attacker.attack_damage, DamageType::Physical);
+
+    AbilityContext ctx{attacker, defender};
+    for (auto& ab : attacker.abilities) {
+        if (ab) ab->on_basic_hit(ctx, dmg);
+    }
 }
 
 void tick_combat(Champion& a, Champion& b, bool colliding, float dt) {

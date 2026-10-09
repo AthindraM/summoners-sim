@@ -74,6 +74,8 @@ int main() {
                 a.regen(DT);
                 b.regen(DT);
                 tick_combat(a, b, colliding, DT);
+                tick_abilities(a, b, DT);
+                tick_abilities(b, a, DT);
 
                 a.enforce_speed();
                 b.enforce_speed();
