@@ -1,0 +1,20 @@
+#include "ui.h"
+
+void draw_stats_panel(const Champion& c, int x, int y, int width) {
+    DrawText(c.def->name.c_str(), x, y, 30, RAYWHITE);
+    y += 44;
+
+    DrawText(TextFormat("HP  %d / %d", c.health, c.def->health), x, y, 20, RAYWHITE);
+    y += 28;
+    float frac = c.def->health > 0 ? Clamp((float)c.health / c.def->health, 0.0f, 1.0f) : 0.0f;
+    DrawRectangle(x, y, width, 14, DARKGRAY);
+    DrawRectangle(x, y, (int)(width * frac), 14, GREEN);
+    y += 34;
+
+    const int line = 26;
+    DrawText(TextFormat("Attack damage:  %d", c.attack_damage), x, y, 20, RAYWHITE); y += line;
+    DrawText(TextFormat("Ability power:  %d", c.ability_power), x, y, 20, RAYWHITE); y += line;
+    DrawText(TextFormat("Armor:          %d", c.armor), x, y, 20, RAYWHITE);         y += line;
+    DrawText(TextFormat("Magic resist:   %d", c.magic_resist), x, y, 20, RAYWHITE);  y += line;
+    DrawText(TextFormat("Move speed:     %d", c.movement_speed), x, y, 20, RAYWHITE);
+}
