@@ -30,7 +30,7 @@ class Champion {
 public:
     const ChampionDef* def;
     int health;
-    int health_regen;
+    float health_regen;   // HP per second; abilities can add to it
     int movement_speed;
     int armor;
     int magic_resist;
