@@ -21,3 +21,11 @@ void tick_abilities(Champion& self, Champion& enemy, float dt) {
         }
     }
 }
+
+void draw_abilities(Champion& self, Champion& enemy) {
+    if (self.health <= 0 || enemy.health <= 0) return;
+    AbilityContext ctx{self, enemy};
+    for (auto& ab : self.abilities) {
+        if (ab) ab->on_draw(ctx);
+    }
+}

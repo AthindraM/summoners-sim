@@ -90,6 +90,8 @@ int main() {
         DrawRectangleLinesEx(arena, 3, RAYWHITE);
         if (a.health > 0) a.draw();   // the loser disappears
         if (b.health > 0) b.draw();
+        draw_abilities(a, b);         // ability effects go on top of the champions
+        draw_abilities(b, a);
         draw_stats_panel(a, 20, (int)arena.y, PANEL_W);
         draw_stats_panel(b, W - PANEL_W - 20, (int)arena.y, PANEL_W);
 

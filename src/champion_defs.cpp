@@ -1,4 +1,5 @@
 #include "champion_defs.h"
+#include "champions/darius.h"
 #include "champions/garen.h"
 #include <map>
 
@@ -50,6 +51,7 @@ void load_champion_defs() {
                      .magic_resist = 32,
                      .attack_damage = 64,
                      .ability_power = 0};
+  darius.abilities[Slot::P] = make_ability<DariusPassive>();
   add(std::move(darius));
 
   ChampionDef garen{.name = "Garen",

@@ -33,6 +33,7 @@ public:
     virtual void on_update(const AbilityContext& /*ctx*/, float /*dt*/) {}     // every physics step
     virtual void on_damage_taken(const AbilityContext& /*ctx*/, int /*dmg*/) {}  // ctx.self took dmg
     virtual void on_basic_hit(const AbilityContext& /*ctx*/, int /*dmg*/) {}     // ctx.self landed a basic hit
+    virtual void on_draw(const AbilityContext& /*ctx*/) const {}                // draw effects (after the champions)
 };
 
 // A ChampionDef stores one factory per slot; every fight calls it to build a fresh ability.
@@ -45,3 +46,6 @@ AbilityFactory make_ability() {
 
 // Ticks cooldowns, runs on_update, and casts any ability that wants to fire.
 void tick_abilities(Champion& self, Champion& enemy, float dt);
+
+// Lets every ability of self draw itself. Call after both champions are drawn.
+void draw_abilities(Champion& self, Champion& enemy);
