@@ -23,7 +23,7 @@ public:
         since_damage += dt;
         cooldown_timer = std::max(0.0f, DELAY - since_damage);   // seconds until it kicks in (shown in the panel)
         if (bonus == 0.0f && since_damage >= DELAY) {
-            bonus = ctx.self.def->health * REGEN_PCT;
+            bonus = ctx.self.max_health * REGEN_PCT;
             ctx.self.health_regen += bonus;
         }
     }

@@ -44,13 +44,18 @@ void load_champion_defs() {
   ChampionDef darius{.name = "Darius",
                      .sprite_path = "assets/champions/darius.png",
                      .radius = 45,
-                     .health = 650,
+                     .health = 652,
                      .health_regen = 10,
                      .movement_speed = 340,
-                     .armor = 39,
+                     .armor = 37,
                      .magic_resist = 32,
                      .attack_damage = 64,
-                     .ability_power = 0};
+                     .ability_power = 0,
+                     .health_growth = 114,
+                     .health_regen_growth = 0.95f,
+                     .armor_growth = 5.2f,
+                     .magic_resist_growth = 2.05f,
+                     .attack_damage_growth = 5};
   darius.abilities[Slot::P] = make_ability<DariusPassive>();
   darius.abilities[Slot::Q] = make_ability<DariusQ>();
   add(std::move(darius));
@@ -61,10 +66,15 @@ void load_champion_defs() {
                     .health = 690,
                     .health_regen = 8,
                     .movement_speed = 340,
-                    .armor = 36,
+                    .armor = 38,
                     .magic_resist = 32,
-                    .attack_damage = 66,
-                    .ability_power = 0};
+                    .attack_damage = 69,
+                    .ability_power = 0,
+                    .health_growth = 98,
+                    .health_regen_growth = 0.5f,
+                    .armor_growth = 4.2f,
+                    .magic_resist_growth = 1.55f,
+                    .attack_damage_growth = 4.5f};
   garen.abilities[Slot::P] = make_ability<GarenPassive>();
   garen.abilities[Slot::Q] = make_ability<GarenQ>();
   add(std::move(garen));
