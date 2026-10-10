@@ -34,8 +34,8 @@ void tick_combat(Champion& a, Champion& b, bool colliding, float dt) {
     if (!colliding) return;
 
     // both hits are decided before either result matters, so a trade can kill both
-    bool a_hits = a.attack_timer <= 0.0f;
-    bool b_hits = b.attack_timer <= 0.0f;
+    bool a_hits = a.can_attack && a.attack_timer <= 0.0f;
+    bool b_hits = b.can_attack && b.attack_timer <= 0.0f;
     if (a_hits) { apply_hit(a, b); a.attack_timer = HIT_COOLDOWN; }
     if (b_hits) { apply_hit(b, a); b.attack_timer = HIT_COOLDOWN; }
 }

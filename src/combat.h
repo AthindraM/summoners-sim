@@ -14,5 +14,5 @@ int deal_damage(Champion& source, Champion& target, float raw, DamageType type);
 void apply_hit(Champion& attacker, Champion& defender);
 
 // Call once per physics step. If the champions are colliding, each one
-// that is off cooldown hits the other.
+// that is off cooldown (and allowed to attack) hits the other.
 void tick_combat(Champion& a, Champion& b, bool colliding, float dt);

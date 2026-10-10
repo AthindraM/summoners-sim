@@ -97,10 +97,10 @@ public:
   }
 };
 
-// Q (Decimate): cast automatically when the enemy is within reach of the blade.
-// Darius is ghosted (passes through champions, so no collisions or basic
-// attacks) for 1 second and hefts his axe for 0.75 seconds, then swings it
-// around himself.
+// Q (Decimate): cast automatically whenever it's off cooldown, whether or not
+// the enemy is in reach (so it can miss). For the 1 second cast Darius can't
+// basic attack (collisions still happen, so the enemy can still hit him), and
+// he hefts his axe for 0.75 seconds, then swings it around himself.
 //   - Hit by the outer ring (the blade): 50 (+100% AD) physical damage, applies
 //   a Hemorrhage
 //     stack, and heals Darius for 17% of his missing health (17% per champion
@@ -110,16 +110,16 @@ public:
 // The radii are in pixels, scaled down from the game's 460 / 240 units to fit
 // the arena. (Mana cost is ignored; there is no mana.)
 class DariusQ : public Ability {
-  static constexpr float WINDUP = 0.75f; // seconds until the swing
-  static constexpr float GHOST_DURATION =
-      1.0f; // seconds he passes through champions
-  static constexpr float OUTER_RADIUS = 170.0f; // pixels
+  static constexpr float WINDUP = 0.75f;        // seconds until the swing
+  static constexpr float CAST_DURATION = 1.0f;  // seconds he can't basic attack
+  static constexpr float OUTER_RADIUS = 175.0f; // pixels
   static constexpr float INNER_RADIUS = 120.0f; // pixels
   static constexpr float BASE_DAMAGE = 50.0f;
   static constexpr float AD_RATIO = 1.00f; // of his total attack damage
   static constexpr float INNER_DAMAGE_MULT = 0.35f;
   static constexpr float HEAL_PER_TARGET = 0.17f; // of missing health
   static constexpr float HEAL_MAX = 0.51f;
+  static constexpr int SEGMENTS = 90; // smoothness of the indicator circles
 
   bool casting = false;
   bool swung = false;
@@ -156,23 +156,16 @@ public:
   DariusQ() {
     name = "Decimate";
     cooldown = 9.0f;
+    range = 1e9f; // no target needed: it fires whenever it's off cooldown
   }
 
   bool active() const override { return casting; }
-
-  bool wants_to_cast(const AbilityContext &ctx) const override {
-    if (casting || cooldown_timer > 0.0f)
-      return false;
-    // cast once the enemy is close enough to be caught by the blade
-    return Vector2Distance(ctx.self.pos, ctx.enemy.pos) - ctx.enemy.radius <=
-           OUTER_RADIUS;
-  }
 
   void cast(const AbilityContext &ctx) override {
     casting = true;
     swung = false;
     cast_time = 0.0f;
-    ctx.self.ghosted = true;
+    ctx.self.can_attack = false;
   }
 
   void on_update(const AbilityContext &ctx, float dt) override {
@@ -183,21 +176,23 @@ public:
       swung = true;
       swing(ctx);
     }
-    if (cast_time >= GHOST_DURATION) {
+    if (cast_time >= CAST_DURATION) {
       casting = false;
-      ctx.self.ghosted = false;
+      ctx.self.can_attack = true;
     }
   }
 
-  // faded red for the whole area (outer edge), lighter red for the inner
-  // circle; both flash brighter for a moment right after the swing
+  // Faded red ring for the blade (outer edge), lighter red disc for the handle
+  // (inner circle). They sit side by side, so the colors never overlap. Both
+  // flash brighter right after the swing.
   void on_draw(const AbilityContext &ctx) const override {
     if (!casting)
       return;
     float boost = swung ? 1.8f : 1.0f;
-    DrawCircleV(ctx.self.pos, INNER_RADIUS,
-                Color{200, 30, 30, (unsigned char)(60 * boost)});
-    DrawCircleV(ctx.self.pos, OUTER_RADIUS,
-                Color{255, 110, 110, (unsigned char)(110 * boost)});
+    Vector2 c = ctx.self.pos;
+    DrawRing(c, INNER_RADIUS, OUTER_RADIUS, 0.0f, 360.0f, SEGMENTS,
+             Color{160, 25, 25, (unsigned char)(110 * boost)});
+    DrawRing(c, 45, INNER_RADIUS, 0.0f, 360.0f, SEGMENTS,
+             Color{200, 30, 30, (unsigned char)(60 * boost)});
   }
 };
