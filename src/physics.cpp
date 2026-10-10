@@ -4,6 +4,8 @@
 // All champions have equal mass, so each one moves half the overlap
 // and takes half the impulse.
 bool resolve_collision(Champion& a, Champion& b, float restitution) {
+    if (a.ghosted || b.ghosted) return false;   // ghosted champions pass through each other
+
     Vector2 delta = Vector2Subtract(b.pos, a.pos);
     float dist = Vector2Length(delta);
     float min_dist = a.radius + b.radius;

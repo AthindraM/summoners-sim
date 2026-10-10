@@ -40,6 +40,7 @@ public:
     Vector2 pos{0, 0};
     Vector2 vel{0, 0};
     float attack_timer{0.0f};   // seconds until this champion can land another hit
+    bool ghosted{false};        // true: passes through other champions (no collisions)
     float regen_buffer{0.0f};   // fractional HP carried between steps
     std::array<std::unique_ptr<Ability>, Slot::Count> abilities;   // indexed by Slot
 
