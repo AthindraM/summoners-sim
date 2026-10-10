@@ -40,6 +40,7 @@ public:
     DariusPassive() { name = "Hemorrhage"; }
 
     int stack_count() const { return stacks; }
+    bool active() const override { return might_active; }
 
     void on_basic_hit(const AbilityContext& ctx, int dmg) override {
         if (dmg <= 0) return;

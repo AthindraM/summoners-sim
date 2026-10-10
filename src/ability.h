@@ -29,6 +29,9 @@ public:
     // Q/W/E/R: true when the ability should fire this step (default: off cooldown and in range)
     virtual bool wants_to_cast(const AbilityContext& ctx) const;
 
+    // true while the ability's effect is running; the stats panel shows its text in yellow
+    virtual bool active() const { return false; }
+
     virtual void cast(const AbilityContext& /*ctx*/) {}                        // Q/W/E/R effect
     virtual void on_update(const AbilityContext& /*ctx*/, float /*dt*/) {}     // every physics step
     virtual void on_damage_taken(const AbilityContext& /*ctx*/, int /*dmg*/) {}  // ctx.self took dmg
