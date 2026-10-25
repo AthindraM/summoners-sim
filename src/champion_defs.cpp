@@ -77,6 +77,7 @@ void load_champion_defs() {
                     .attack_damage_growth = 4.5f};
   garen.abilities[Slot::P] = make_ability<GarenPassive>();
   garen.abilities[Slot::Q] = make_ability<GarenQ>();
+  garen.abilities[Slot::W] = make_ability<GarenW>();
   add(std::move(garen));
 }
 

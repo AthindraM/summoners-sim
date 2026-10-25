@@ -89,22 +89,20 @@ public:
         (float)(ctx.self.attack_damage - ctx.self.base_attack_damage);
     float per_stack =
         bleed_base(ctx.self.level) + BLEED_BONUS_AD_RATIO * bonus_ad;
-    float armor_mult =
-        100.0f / (100.0f + ctx.enemy.armor); // same formula as deal_damage
-    bleed_owed += stacks * per_stack * dt / STACK_DURATION * armor_mult;
+    float mult = damage_multiplier(
+        ctx.enemy, DamageType::Physical); // armor and damage reduction
+    bleed_owed += stacks * per_stack * dt / STACK_DURATION * mult;
     int whole = (int)bleed_owed;
-    if (whole > 0) {
+    if (whole > 0 && mult > 0.0f) {
       bleed_owed -= whole;
-      deal_damage(ctx.self, ctx.enemy, whole / armor_mult,
-                  DamageType::Physical);
+      deal_damage(ctx.self, ctx.enemy, whole / mult, DamageType::Physical);
     }
 
     stack_timer -= dt;
     if (stack_timer <= 0.0f) {
       int rest = (int)std::lround(bleed_owed); // pay out what's left, rounded
-      if (rest > 0)
-        deal_damage(ctx.self, ctx.enemy, rest / armor_mult,
-                    DamageType::Physical);
+      if (rest > 0 && mult > 0.0f)
+        deal_damage(ctx.self, ctx.enemy, rest / mult, DamageType::Physical);
       clear(ctx.self);
     }
   }

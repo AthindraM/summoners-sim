@@ -2,15 +2,22 @@
 #include <algorithm>
 #include <cmath>
 
+float damage_multiplier(const Champion& target, DamageType type) {
+    float resist_mult = 1.0f;
+    if (type == DamageType::Physical)   resist_mult = 100.0f / (100.0f + target.armor);
+    else if (type == DamageType::Magic) resist_mult = 100.0f / (100.0f + target.magic_resist);
+    return resist_mult * (1.0f - target.damage_reduction);
+}
+
 int deal_damage(Champion& source, Champion& target, float raw, DamageType type) {
     if (target.health <= 0) return 0;
 
-    float multiplier = 1.0f;
-    if (type == DamageType::Physical)   multiplier = 100.0f / (100.0f + target.armor);
-    else if (type == DamageType::Magic) multiplier = 100.0f / (100.0f + target.magic_resist);
-
-    int dmg = std::min((int)std::lround(raw * multiplier), target.health);
-    target.health -= dmg;
+    int incoming = std::max(0, (int)std::lround(raw * damage_multiplier(target, type)));
+    int absorbed = std::min(incoming, target.shield);
+    target.shield -= absorbed;
+    int to_health = std::min(incoming - absorbed, target.health);
+    target.health -= to_health;
+    int dmg = absorbed + to_health;
 
     AbilityContext ctx{target, source};   // from the target's point of view
     for (auto& ab : target.abilities) {

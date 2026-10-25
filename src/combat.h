@@ -5,9 +5,13 @@ const float HIT_COOLDOWN = 0.5f;   // seconds between hits from the same champio
 
 enum class DamageType { Physical, Magic, True };
 
-// Deals damage after the target's resistance (armor for Physical, magic_resist for Magic,
-// none for True), using the League formula 100 / (100 + resist). Fires the target's
-// on_damage_taken hooks and returns the damage actually dealt.
+// Fraction of raw damage that gets through: the resistance formula 100 / (100 + resist)
+// (armor for Physical, magic_resist for Magic, none for True), times (1 - damage_reduction).
+float damage_multiplier(const Champion& target, DamageType type);
+
+// Deals damage after damage_multiplier. The target's shield absorbs first, then health.
+// Fires the target's on_damage_taken hooks and returns the damage actually dealt
+// (shield + health, without overkill).
 int deal_damage(Champion& source, Champion& target, float raw, DamageType type);
 
 // A basic hit from a collision: physical damage from attack_damage, then on_basic_hit hooks.

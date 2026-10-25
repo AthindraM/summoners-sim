@@ -94,3 +94,70 @@ public:
                     DamageType::Physical);
     }
 };
+
+// W (Courage): cast automatically whenever it's off cooldown (22 seconds, counted from the cast).
+// For 4 seconds Garen takes 25% less damage, and for the first 0.75 seconds he also has a shield of
+// 65 (+18% bonus health). A tiny yellow ring is drawn around him while it lasts.
+// (Not implemented: the 60% tenacity, since nothing in the sim applies crowd control yet; and the
+// Courage stacks from kills, which were left out on purpose.)
+class GarenW : public Ability {
+    static constexpr float DURATION = 4.0f;               // seconds of damage reduction
+    static constexpr float SHIELD_DURATION = 0.75f;       // seconds the shield lasts
+    static constexpr float DAMAGE_REDUCTION = 0.25f;
+    static constexpr float SHIELD_BASE = 65.0f;
+    static constexpr float SHIELD_BONUS_HEALTH_RATIO = 0.18f;
+
+    float timer = 0.0f;           // seconds of damage reduction left
+    float shield_timer = 0.0f;    // seconds of shield left
+    int shield_granted = 0;
+
+    void end_shield(Champion& self) {
+        self.shield = std::max(0, self.shield - shield_granted);   // whatever wasn't absorbed
+        shield_granted = 0;
+        shield_timer = 0.0f;
+    }
+
+    void end_effect(Champion& self) {
+        self.damage_reduction -= DAMAGE_REDUCTION;
+        timer = 0.0f;
+    }
+
+public:
+    GarenW() {
+        name = "Courage";
+        cooldown = 22.0f;
+        range = 1e9f;   // no target needed: it fires whenever it's off cooldown
+    }
+
+    bool active() const override { return timer > 0.0f; }
+
+    void cast(const AbilityContext& ctx) override {
+        Champion& self = ctx.self;
+        if (shield_granted > 0) end_shield(self);
+        if (timer > 0.0f) end_effect(self);
+
+        self.damage_reduction += DAMAGE_REDUCTION;
+        float bonus_health = (float)(self.max_health - self.base_max_health);   // 0 until something adds max HP
+        shield_granted = (int)std::lround(SHIELD_BASE + SHIELD_BONUS_HEALTH_RATIO * bonus_health);
+        self.shield += shield_granted;
+        timer = DURATION;
+        shield_timer = SHIELD_DURATION;
+    }
+
+    void on_update(const AbilityContext& ctx, float dt) override {
+        if (shield_timer > 0.0f) {
+            shield_timer -= dt;
+            if (shield_timer <= 0.0f) end_shield(ctx.self);
+        }
+        if (timer > 0.0f) {
+            timer -= dt;
+            if (timer <= 0.0f) end_effect(ctx.self);
+        }
+    }
+
+    void on_draw(const AbilityContext& ctx) const override {
+        if (timer <= 0.0f) return;
+        float r = ctx.self.radius;
+        DrawRing(ctx.self.pos, r + 2.0f, r + 6.0f, 0.0f, 360.0f, 64, YELLOW);
+    }
+};
