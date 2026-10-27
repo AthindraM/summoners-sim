@@ -97,13 +97,14 @@ public:
 
 // W (Courage): cast automatically whenever it's off cooldown (22 seconds, counted from the cast).
 // For 4 seconds Garen takes 25% less damage, and for the first 0.75 seconds he also has a shield of
-// 65 (+18% bonus health). A tiny yellow ring is drawn around him while it lasts.
-// (Not implemented: the 60% tenacity, since nothing in the sim applies crowd control yet; and the
-// Courage stacks from kills, which were left out on purpose.)
+// 65 (+18% bonus health) and 60% tenacity (crowd control on him lasts 60% shorter). A tiny yellow
+// ring is drawn around him while the damage reduction lasts.
+// (Not implemented: the Courage stacks from kills, which were left out on purpose.)
 class GarenW : public Ability {
     static constexpr float DURATION = 4.0f;               // seconds of damage reduction
     static constexpr float SHIELD_DURATION = 0.75f;       // seconds the shield lasts
     static constexpr float DAMAGE_REDUCTION = 0.25f;
+    static constexpr float TENACITY = 0.60f;               // while the shield window lasts
     static constexpr float SHIELD_BASE = 65.0f;
     static constexpr float SHIELD_BONUS_HEALTH_RATIO = 0.18f;
 
@@ -114,6 +115,7 @@ class GarenW : public Ability {
     void end_shield(Champion& self) {
         self.shield = std::max(0, self.shield - shield_granted);   // whatever wasn't absorbed
         shield_granted = 0;
+        self.tenacity -= TENACITY;
         shield_timer = 0.0f;
     }
 
@@ -133,13 +135,14 @@ public:
 
     void cast(const AbilityContext& ctx) override {
         Champion& self = ctx.self;
-        if (shield_granted > 0) end_shield(self);
+        if (shield_timer > 0.0f) end_shield(self);
         if (timer > 0.0f) end_effect(self);
 
         self.damage_reduction += DAMAGE_REDUCTION;
         float bonus_health = (float)(self.max_health - self.base_max_health);   // 0 until something adds max HP
         shield_granted = (int)std::lround(SHIELD_BASE + SHIELD_BONUS_HEALTH_RATIO * bonus_health);
         self.shield += shield_granted;
+        self.tenacity += TENACITY;
         timer = DURATION;
         shield_timer = SHIELD_DURATION;
     }

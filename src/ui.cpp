@@ -1,5 +1,6 @@
 #include "ui.h"
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 
 void draw_stats_panel(const Champion& c, int x, int y, int width) {
@@ -37,7 +38,7 @@ void draw_stats_panel(const Champion& c, int x, int y, int width) {
     DrawText(TextFormat("Ability power:  %d", c.ability_power), x, y, 20, RAYWHITE); y += line;
     DrawText(TextFormat("Armor:          %d", c.armor), x, y, 20, RAYWHITE);         y += line;
     DrawText(TextFormat("Magic resist:   %d", c.magic_resist), x, y, 20, RAYWHITE);  y += line;
-    DrawText(TextFormat("Move speed:     %d", c.movement_speed), x, y, 20, RAYWHITE);
+    DrawText(TextFormat("Move speed:     %d", (int)std::lround(c.current_speed())), x, y, 20, RAYWHITE);
     y += line + 14;
 
     // P / Q / W / E / R: name and cooldown (gray while on cooldown, yellow while active)

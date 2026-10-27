@@ -23,8 +23,8 @@ int main() {
   const int PANEL_W = 220;
   const float DT = 1.0f / 120.0f; // fixed physics step
   const float RESTITUTION = 1.0f; // fully elastic
-  const int DARIUS_LEVEL = 1;     // 1 to 18; sets each champion's stats
-  const int GAREN_LEVEL = 1;
+  const int DARIUS_LEVEL = 6;     // 1 to 18; sets each champion's stats
+  const int GAREN_LEVEL = 6;
 
   InitWindow(W, H, "Summoner's Sim");
   SetTargetFPS(60);

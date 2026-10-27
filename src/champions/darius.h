@@ -218,3 +218,76 @@ public:
              Color{200, 30, 30, (unsigned char)(60 * boost)});
   }
 };
+
+// W (Crippling Strike, modified): cast automatically whenever it's off cooldown
+// (5 seconds, counted from the cast). His next basic attack within 4 seconds is
+// empowered: it applies 2 Hemorrhage stacks (the 1 every basic attack applies,
+// plus 1 more), slows the enemy by 90% for 1 second (shorter with tenacity),
+// and deals bonus physical damage equal to 40% of his AD. A bright red ring is
+// drawn around him while the empowerment is ready. (Not implemented: the 25
+// bonus range, the uncancellable windup, crits, resetting his attack timer, and
+// the cooldown refund on a kill. No mana either.)
+class DariusW : public Ability {
+  static constexpr float EMPOWER_WINDOW =
+      4.0f; // seconds to land the empowered attack
+  static constexpr float SLOW_DURATION = 1.0f; // seconds
+  static constexpr float SLOW_AMOUNT = 0.90f;  // fraction of move speed removed
+  static constexpr float BONUS_AD_RATIO = 0.40f; // of his total attack damage
+  static constexpr int EXTRA_STACKS =
+      1; // on top of the 1 stack a basic attack already applies
+
+  float empower_timer = 0.0f;
+  float slow_timer = 0.0f;
+
+public:
+  DariusW() {
+    name = "Crippling Strike";
+    cooldown = 5.0f;
+    range = 1e9f; // no target needed: it fires whenever it's off cooldown
+  }
+
+  bool active() const override { return empower_timer > 0.0f; }
+
+  void cast(const AbilityContext & /*ctx*/) override {
+    empower_timer = EMPOWER_WINDOW;
+  }
+
+  void on_update(const AbilityContext &ctx, float dt) override {
+    empower_timer = std::max(0.0f, empower_timer - dt);
+    if (empower_timer > 0.0f)
+      cooldown_timer = cooldown;
+    if (slow_timer > 0.0f) {
+      slow_timer -= dt;
+      if (slow_timer <= 0.0f) {
+        slow_timer = 0.0f;
+        ctx.enemy.slow = 0.0f;
+      }
+    }
+  }
+
+  // Runs after the passive's own hook, so the basic attack's normal stack is
+  // already on.
+  void on_basic_hit(const AbilityContext &ctx, int /*dmg*/) override {
+    if (empower_timer <= 0.0f)
+      return;
+    empower_timer = 0.0f; // used up by this attack
+
+    deal_damage(ctx.self, ctx.enemy, BONUS_AD_RATIO * ctx.self.attack_damage,
+                DamageType::Physical);
+    if (auto *passive =
+            dynamic_cast<DariusPassive *>(ctx.self.abilities[Slot::P].get())) {
+      for (int i = 0; i < EXTRA_STACKS; i++)
+        passive->add_stack(ctx.self);
+    }
+    ctx.enemy.slow = SLOW_AMOUNT;
+    slow_timer = ctx.enemy.cc_duration(SLOW_DURATION);
+  }
+
+  void on_draw(const AbilityContext &ctx) const override {
+    if (empower_timer <= 0.0f)
+      return;
+    float r = ctx.self.radius;
+    DrawRing(ctx.self.pos, r + 3.0f, r + 8.0f, 0.0f, 360.0f, 64,
+             Color{255, 40, 40, 255});
+  }
+};
